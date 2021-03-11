@@ -33,6 +33,14 @@ public class @Player : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Teleport"",
+                    ""type"": ""Button"",
+                    ""id"": ""3ab2f66e-43b9-4edc-90fa-c6fbf0b6b8c8"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -112,6 +120,17 @@ public class @Player : IInputActionCollection, IDisposable
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cb1318ac-9939-497a-b002-87ae72f9f83e"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Teleport"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -122,6 +141,7 @@ public class @Player : IInputActionCollection, IDisposable
         m_PlayerMain = asset.FindActionMap("PlayerMain", throwIfNotFound: true);
         m_PlayerMain_Move = m_PlayerMain.FindAction("Move", throwIfNotFound: true);
         m_PlayerMain_Jump = m_PlayerMain.FindAction("Jump", throwIfNotFound: true);
+        m_PlayerMain_Teleport = m_PlayerMain.FindAction("Teleport", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -173,12 +193,14 @@ public class @Player : IInputActionCollection, IDisposable
     private IPlayerMainActions m_PlayerMainActionsCallbackInterface;
     private readonly InputAction m_PlayerMain_Move;
     private readonly InputAction m_PlayerMain_Jump;
+    private readonly InputAction m_PlayerMain_Teleport;
     public struct PlayerMainActions
     {
         private @Player m_Wrapper;
         public PlayerMainActions(@Player wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_PlayerMain_Move;
         public InputAction @Jump => m_Wrapper.m_PlayerMain_Jump;
+        public InputAction @Teleport => m_Wrapper.m_PlayerMain_Teleport;
         public InputActionMap Get() { return m_Wrapper.m_PlayerMain; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -194,6 +216,9 @@ public class @Player : IInputActionCollection, IDisposable
                 @Jump.started -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnJump;
+                @Teleport.started -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnTeleport;
+                @Teleport.performed -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnTeleport;
+                @Teleport.canceled -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnTeleport;
             }
             m_Wrapper.m_PlayerMainActionsCallbackInterface = instance;
             if (instance != null)
@@ -204,6 +229,9 @@ public class @Player : IInputActionCollection, IDisposable
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
+                @Teleport.started += instance.OnTeleport;
+                @Teleport.performed += instance.OnTeleport;
+                @Teleport.canceled += instance.OnTeleport;
             }
         }
     }
@@ -212,5 +240,6 @@ public class @Player : IInputActionCollection, IDisposable
     {
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
+        void OnTeleport(InputAction.CallbackContext context);
     }
 }
