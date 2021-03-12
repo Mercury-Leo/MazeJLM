@@ -33,10 +33,11 @@ public class CameraLook : MonoBehaviour
     void Update()
     {
 
-        Vector2 delta = playerInput.PlayerMain.Move.ReadValue<Vector2>();
+        //Vector2 delta = playerInput.PlayerMain.Move.ReadValue<Vector2>();
+        Vector2 delta = playerInput.PlayerMain.LookAround.ReadValue<Vector2>();
         // Debug.Log("detla x: " + delta.x + "\n delta y: " + delta.y);
-        cinemachine.m_XAxis.Value += delta.x * lookSpeed * Time.deltaTime;
-        cinemachine.m_YAxis.Value += delta.y * lookSpeed * Time.deltaTime + 50f;
+        cinemachine.m_XAxis.Value += delta.x * 200f * lookSpeed * Time.deltaTime;
+        cinemachine.m_YAxis.Value += delta.y * lookSpeed * Time.deltaTime;// + 50f;
 
     }
 }

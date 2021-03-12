@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
@@ -15,9 +16,11 @@ public class PlayerController : MonoBehaviour
     private PlayerState playerState = PlayerState.Walking;
     private int currentTeleport;
     private int previousTeleport;
+    private Transform child;
 
-    enum PlayerState { Teleporting, Walking, Idle, Jumping};
+    enum PlayerState { Teleporting, Walking, Idle, Jumping, Spraying};
 
+    [Header("Player Control")]
     [SerializeField]
     private float playerSpeed = 2.0f;
     [SerializeField]
@@ -25,9 +28,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float gravityValue = -9.81f;
     [SerializeField]
+    private float rotationSpeed = 4f;
+    [Space(10)]
+
+    [Header("Extra Stuff")]
+    [SerializeField]
     GameObject teleportLocation;
     [SerializeField]
     Animation fadePanel;
+    [SerializeField]
+    LayerMask mazeLayer;
+    [SerializeField]
+    GameObject graffitiArrow;
 
     private void Awake()
     {
@@ -50,7 +62,7 @@ public class PlayerController : MonoBehaviour
     {
         previousTeleport = 0;
         cameraMain = Camera.main.transform;
-    
+        child = transform.GetChild(0).transform;
     }
 
     void Update()
@@ -58,6 +70,31 @@ public class PlayerController : MonoBehaviour
         if(playerState != PlayerState.Teleporting)
             CharacterMovement();
         TeleportPlayer();
+        if (playerInput.PlayerMain.Spray.triggered)
+        {
+            TagWall();
+        }
+        
+    }
+
+    private void TagWall()
+    {
+        RaycastHit hit = new RaycastHit();
+        Vector3 directionRay = transform.rotation * Vector3.forward;
+        Ray ray = new Ray(transform.position, directionRay);
+
+        if(Physics.Raycast(ray, out hit, 3, mazeLayer))
+        {
+            var hitRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+            Vector3 hitPoint;
+            /* if (transform.eulerAngles.y >= -45 && transform.eulerAngles.y <= 135)
+                 hitPoint = new Vector3(hit.point.x - 0.1f, hit.point.y + 2f, hit.point.z - 0.1f);
+             else
+                 hitPoint = new Vector3(hit.point.x + 0.1f, hit.point.y + 2f, hit.point.z + 0.1f);*/
+            hitPoint = hit.point + hit.normal * 0.1f;
+            hitPoint.y += 2f;
+            Instantiate(graffitiArrow, hitPoint, hitRotation);
+        }
     }
 
     void TeleportPlayer()
@@ -113,10 +150,18 @@ public class PlayerController : MonoBehaviour
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
 
-        /* if(movementInput != Vector2.zero)
+        if(movementInput != Vector2.zero)
          {
              Quaternion rotation = Quaternion.Euler(new Vector3(child.localEulerAngles.x, cameraMain.localEulerAngles.y, child.localEulerAngles.z));
              child.rotation = Quaternion.Lerp(child.rotation, rotation, Time.deltaTime * rotationSpeed);
-         }*/
+         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "Trap")
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 }

@@ -41,6 +41,22 @@ public class @Player : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""Spray"",
+                    ""type"": ""Button"",
+                    ""id"": ""a95832a4-73f6-4bb1-9fbd-15f3feda44f8"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""LookAround"",
+                    ""type"": ""Value"",
+                    ""id"": ""aa735dd1-a326-45f7-8ef2-a21b2da66c7b"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -131,6 +147,28 @@ public class @Player : IInputActionCollection, IDisposable
                     ""action"": ""Teleport"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8db4a3e4-87db-4bc9-933b-9ca656a54f5d"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Spray"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""505b2df0-f539-444b-833a-b5b754342f3f"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LookAround"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -142,6 +180,8 @@ public class @Player : IInputActionCollection, IDisposable
         m_PlayerMain_Move = m_PlayerMain.FindAction("Move", throwIfNotFound: true);
         m_PlayerMain_Jump = m_PlayerMain.FindAction("Jump", throwIfNotFound: true);
         m_PlayerMain_Teleport = m_PlayerMain.FindAction("Teleport", throwIfNotFound: true);
+        m_PlayerMain_Spray = m_PlayerMain.FindAction("Spray", throwIfNotFound: true);
+        m_PlayerMain_LookAround = m_PlayerMain.FindAction("LookAround", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -194,6 +234,8 @@ public class @Player : IInputActionCollection, IDisposable
     private readonly InputAction m_PlayerMain_Move;
     private readonly InputAction m_PlayerMain_Jump;
     private readonly InputAction m_PlayerMain_Teleport;
+    private readonly InputAction m_PlayerMain_Spray;
+    private readonly InputAction m_PlayerMain_LookAround;
     public struct PlayerMainActions
     {
         private @Player m_Wrapper;
@@ -201,6 +243,8 @@ public class @Player : IInputActionCollection, IDisposable
         public InputAction @Move => m_Wrapper.m_PlayerMain_Move;
         public InputAction @Jump => m_Wrapper.m_PlayerMain_Jump;
         public InputAction @Teleport => m_Wrapper.m_PlayerMain_Teleport;
+        public InputAction @Spray => m_Wrapper.m_PlayerMain_Spray;
+        public InputAction @LookAround => m_Wrapper.m_PlayerMain_LookAround;
         public InputActionMap Get() { return m_Wrapper.m_PlayerMain; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -219,6 +263,12 @@ public class @Player : IInputActionCollection, IDisposable
                 @Teleport.started -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnTeleport;
                 @Teleport.performed -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnTeleport;
                 @Teleport.canceled -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnTeleport;
+                @Spray.started -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnSpray;
+                @Spray.performed -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnSpray;
+                @Spray.canceled -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnSpray;
+                @LookAround.started -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnLookAround;
+                @LookAround.performed -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnLookAround;
+                @LookAround.canceled -= m_Wrapper.m_PlayerMainActionsCallbackInterface.OnLookAround;
             }
             m_Wrapper.m_PlayerMainActionsCallbackInterface = instance;
             if (instance != null)
@@ -232,6 +282,12 @@ public class @Player : IInputActionCollection, IDisposable
                 @Teleport.started += instance.OnTeleport;
                 @Teleport.performed += instance.OnTeleport;
                 @Teleport.canceled += instance.OnTeleport;
+                @Spray.started += instance.OnSpray;
+                @Spray.performed += instance.OnSpray;
+                @Spray.canceled += instance.OnSpray;
+                @LookAround.started += instance.OnLookAround;
+                @LookAround.performed += instance.OnLookAround;
+                @LookAround.canceled += instance.OnLookAround;
             }
         }
     }
@@ -241,5 +297,7 @@ public class @Player : IInputActionCollection, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnTeleport(InputAction.CallbackContext context);
+        void OnSpray(InputAction.CallbackContext context);
+        void OnLookAround(InputAction.CallbackContext context);
     }
 }
