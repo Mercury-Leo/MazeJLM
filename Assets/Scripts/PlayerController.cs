@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     private int currentTeleport;
     private int previousTeleport;
     private Transform child;
+    private AudioSource audio;
 
     enum PlayerState { Teleporting, Walking, Idle, Jumping, Spraying};
 
@@ -40,12 +41,18 @@ public class PlayerController : MonoBehaviour
     LayerMask mazeLayer;
     [SerializeField]
     GameObject graffitiArrow;
+    [SerializeField]
+    AudioClip graffitiSound;
+    [SerializeField]
+    AudioClip TeleportingSound;
+
 
     private void Awake()
     {
         Assert.IsNotNull(teleportLocation);
         playerInput = new Player();
         controller = gameObject.GetComponent<CharacterController>();
+        audio = gameObject.GetComponent<AudioSource>();
     }
 
     private void OnEnable()
@@ -92,8 +99,9 @@ public class PlayerController : MonoBehaviour
              else
                  hitPoint = new Vector3(hit.point.x + 0.1f, hit.point.y + 2f, hit.point.z + 0.1f);*/
             hitPoint = hit.point + hit.normal * 0.1f;
-            hitPoint.y += 2f;
+            hitPoint.y += 1f;
             Instantiate(graffitiArrow, hitPoint, hitRotation);
+            audio.PlayOneShot(graffitiSound);
         }
     }
 
@@ -109,6 +117,7 @@ public class PlayerController : MonoBehaviour
             Vector3 randomChild = teleportLocation.transform.GetChild(currentTeleport).transform.position;
             previousTeleport = currentTeleport;
             transform.position = new Vector3(randomChild.x, randomChild.y, randomChild.z);
+            audio.PlayOneShot(TeleportingSound);
             StartCoroutine(TeleportLag());
             
         }
