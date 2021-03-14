@@ -17,7 +17,8 @@ public class PlayerController : MonoBehaviour
     private int currentTeleport;
     private int previousTeleport;
     private Transform child;
-    private AudioSource audio;
+    private AudioSource audioSource;
+    private Animator charAnimator;
 
     enum PlayerState { Teleporting, Walking, Idle, Jumping, Spraying};
 
@@ -41,6 +42,9 @@ public class PlayerController : MonoBehaviour
     LayerMask mazeLayer;
     [SerializeField]
     GameObject graffitiArrow;
+    [Space(10)]
+
+    [Header("Sound")]
     [SerializeField]
     AudioClip graffitiSound;
     [SerializeField]
@@ -52,7 +56,8 @@ public class PlayerController : MonoBehaviour
         Assert.IsNotNull(teleportLocation);
         playerInput = new Player();
         controller = gameObject.GetComponent<CharacterController>();
-        audio = gameObject.GetComponent<AudioSource>();
+        audioSource = gameObject.GetComponent<AudioSource>();
+        charAnimator = gameObject.transform.GetChild(0).GetComponent<Animator>();
     }
 
     private void OnEnable()
@@ -70,6 +75,7 @@ public class PlayerController : MonoBehaviour
         previousTeleport = 0;
         cameraMain = Camera.main.transform;
         child = transform.GetChild(0).transform;
+        SceneManager.LoadSceneAsync("UI", LoadSceneMode.Additive);
     }
 
     void Update()
@@ -94,14 +100,10 @@ public class PlayerController : MonoBehaviour
         {
             var hitRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
             Vector3 hitPoint;
-            /* if (transform.eulerAngles.y >= -45 && transform.eulerAngles.y <= 135)
-                 hitPoint = new Vector3(hit.point.x - 0.1f, hit.point.y + 2f, hit.point.z - 0.1f);
-             else
-                 hitPoint = new Vector3(hit.point.x + 0.1f, hit.point.y + 2f, hit.point.z + 0.1f);*/
             hitPoint = hit.point + hit.normal * 0.1f;
             hitPoint.y += 1f;
             Instantiate(graffitiArrow, hitPoint, hitRotation);
-            audio.PlayOneShot(graffitiSound);
+            audioSource.PlayOneShot(graffitiSound);
         }
     }
 
@@ -109,15 +111,16 @@ public class PlayerController : MonoBehaviour
     {
         if (playerInput.PlayerMain.Teleport.triggered && playerState != PlayerState.Teleporting)
         {
+            charAnimator.SetBool("Moving", false);
             playerState = PlayerState.Teleporting;
             fadePanel.Play("FadePanel");
             currentTeleport = UnityEngine.Random.Range(0, teleportLocation.transform.childCount);
-            if (currentTeleport >= previousTeleport)
+            if (currentTeleport == previousTeleport)
                 currentTeleport = (currentTeleport + 1) % teleportLocation.transform.childCount;
             Vector3 randomChild = teleportLocation.transform.GetChild(currentTeleport).transform.position;
             previousTeleport = currentTeleport;
             transform.position = new Vector3(randomChild.x, randomChild.y, randomChild.z);
-            audio.PlayOneShot(TeleportingSound);
+            audioSource.PlayOneShot(TeleportingSound);
             StartCoroutine(TeleportLag());
             
         }
@@ -146,7 +149,12 @@ public class PlayerController : MonoBehaviour
         if (move != Vector3.zero)
         {
             playerState = PlayerState.Walking;
+            charAnimator.SetBool("Moving", true);
             gameObject.transform.forward = move;
+        }
+        else
+        {
+            charAnimator.SetBool("Moving", false);
         }
 
         // Changes the height position of the player..
@@ -171,6 +179,10 @@ public class PlayerController : MonoBehaviour
         if(other.tag == "Trap")
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        if(other.tag == "Prize")
+        {
+            SceneManager.LoadScene("WinScreen");
         }
     }
 }
