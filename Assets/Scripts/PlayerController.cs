@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
     private AudioSource audioSource;
     private Animator charAnimator;
 
-    enum PlayerState { Teleporting, Walking, Idle, Jumping, Spraying};
+    enum PlayerState { Teleporting, Walking, Idle, Jumping, Spraying, Winning};
 
     [Header("Player Control")]
     [SerializeField]
@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour
     AudioClip graffitiSound;
     [SerializeField]
     AudioClip TeleportingSound;
+
 
     private void Awake()
     {
@@ -79,13 +80,17 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if(playerState != PlayerState.Teleporting)
-            CharacterMovement();
-        TeleportPlayer();
-        if (playerInput.PlayerMain.Spray.triggered)
+        if(playerState != PlayerState.Winning)
         {
-            TagWall();
+            if (playerState != PlayerState.Teleporting)
+                CharacterMovement();
+            TeleportPlayer();
+            if (playerInput.PlayerMain.Spray.triggered)
+            {
+                TagWall();
+            }
         }
+        
         
     }
 
@@ -97,6 +102,7 @@ public class PlayerController : MonoBehaviour
 
         if(Physics.Raycast(ray, out hit, 3, mazeLayer))
         {
+            charAnimator.Play("Spray");
             var hitRotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
             Vector3 hitPoint;
             hitPoint = hit.point + hit.normal * 0.1f;
@@ -156,6 +162,7 @@ public class PlayerController : MonoBehaviour
             charAnimator.SetBool("Moving", false);
         }
 
+        charAnimator.SetFloat("JumpForce", playerVelocity.y);
         // Changes the height position of the player..
         if (playerInput.PlayerMain.Jump.triggered && groundedPlayer)
         {
@@ -181,7 +188,15 @@ public class PlayerController : MonoBehaviour
         }
         if(other.tag == "Prize")
         {
-            SceneManager.LoadScene("WinScreen");
+            StartCoroutine(VictoryDance());
         }
+    }
+
+    private IEnumerator VictoryDance()
+    {
+        playerState = PlayerState.Winning;
+        charAnimator.Play("Hip Hop Dancing");
+        yield return new WaitForSeconds(3);
+        SceneManager.LoadScene("WinScreen");
     }
 }
