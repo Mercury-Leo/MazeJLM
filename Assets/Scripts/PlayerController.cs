@@ -50,7 +50,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     AudioClip TeleportingSound;
 
-
     private void Awake()
     {
         Assert.IsNotNull(teleportLocation);

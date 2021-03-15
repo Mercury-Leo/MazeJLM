@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class MusicControl : MonoBehaviour
 {
+    static MusicControl Instance;
+
     [SerializeField] Sprite musicOnImage;
     [SerializeField] Sprite musicOffImage;
     [SerializeField] Button musicBtn;
@@ -15,7 +17,13 @@ public class MusicControl : MonoBehaviour
 
     private void Awake()
     {
-        
+        if (Instance != null & Instance != this)
+            Destroy(this.gameObject);
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
     }
 
     void Start()
